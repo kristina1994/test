@@ -12,5 +12,7 @@ jobs:
           fetch-depth: 1
       - name: PHPStan
         uses: docker://oskarstark/phpstan-ga
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: analyse src/ --level max
