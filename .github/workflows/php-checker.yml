@@ -22,4 +22,4 @@ jobs:
         uses: docker://oskarstark/phpstan-ga
         with:
           args: analyse .
-          secrets: ["GITHUB_TOKEN"]
+          secrets: ${{secrets.GITHUB_TOKEN}}
