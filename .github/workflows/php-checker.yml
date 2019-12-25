@@ -11,7 +11,7 @@ jobs:
         with:
           fetch-depth: 1
       - name: PHPStan
-        uses: docker://oskarstark/phpstan-ga
+        uses: docker://oskarstark/phpstan-ga@0.12.19.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
