@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@master
       - name: PHPStan
         uses: docker://oskarstark/phpstan-ga
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: analyse .
-          secrets: ${{secrets.GITHUB_TOKEN}}
+          args: analyse src
