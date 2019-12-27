@@ -8,5 +8,6 @@ class Bar
         $a = true;
         $b = false;
         return $a || $b;
+
     }
 }
