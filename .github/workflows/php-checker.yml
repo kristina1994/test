@@ -1,18 +1,66 @@
-name: Test
+name: Node CI environment
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
-  phpstan:
-    name: PHPStan
+  lint:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
     steps:
+      - name: Checkout
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
-      - name: PHPStan
-        uses: docker://phpdoc/phpstan-ga:latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      #      - name: Use Node.js ${{ matrix.node-version }}
+      #        uses: actions/setup-node@v1
+      #        with:
+      #          node-version: ${{ matrix.node-version }}
+      #
+      #      - name: npm login
+      #        run:
+      #          npm config set //registry.npmjs.org/:_authToken=$NPM_READONLY_AUTH_TOKEN
+      #        env:
+      #          NPM_READONLY_AUTH_TOKEN: ${{ secrets.NPM_READONLY_AUTH_TOKEN }}
+      #
+      #      - name: npm install
+      #        working-directory: ./application
+      #        run: npm i --ignore-scripts
+      #
+      #      - name: Run ESLint
+      #        uses: ninosaurus/eslint-check@master
+      #        with:
+      #          eslint-config-path: "./application/assets/js/.eslintrc_ci.json"
+      #          eslintignore-path: "./application/assets/js/.eslintignore"
+      #          custom-directory: "./application"
+      #          repo-token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v1
         with:
-          args: analyse src/ --level max
+          php-version: '7.1'
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Cache composer dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+      - name: Test with phpunit
+        run: vendor/bin/phpunit --coverage-text
+#          extensions: grpc-1.9.0, protobuf-3.5.1.1, xdebug-2.6.0
+#          ini-values:
+#          coverage: xdebug
+
+#      - name: PHPStan
+#        uses: docker://oskarstark/phpstan-ga:latest
+#        with:
+#          args: analyse codebase/Service/UserActivity --configuration phpstan.neon
